@@ -1,0 +1,69 @@
+---
+# My Diary
+
+Today  **{{DATE_PRETTY}}**.
+
+## General Counter
+It has been    **{{DAY_SINCE_2025_08_18}}** days since I started this diary.
+
+# Repository Counter
+
+Day **{{DAYS_SINCE_REPO_START}}** From I started this repository
+
+# Binary Classification 
+
+# Deep Learning Fundamentals: Vectorization & Data Representation
+
+## 1. Executive Summary
+This module introduces the fundamental data pipeline for binary classification, using **Logistic Regression** as a baseline for understanding Deep Learning architectures. It emphasizes **vectorization**: transforming high-dimensional inputs (like images) into flattened feature vectors and stacking training examples into column-oriented matrices to enable efficient processing without explicit `for` loops.
+
+---
+
+## 2. Technical Deep Dive
+
+### Input Representation & Flattening
+In a binary classification task (e.g., Cat vs. Non-Cat), the input is an image. Computers perceive this as three distinct matrices corresponding to Red, Green, and Blue (RGB) color channels.
+
+* **Dimensions:** If an image is **64 x 64** pixels, it consists of three separate $64 \times 64$ matrices.
+* **Flattening ("Unrolling"):** To create the input feature vector $x$, these three matrices are "unrolled" into a single column vector.
+* **Dimensionality ($n_x$):** The total dimension of the feature vector is the product of height, width, and depth (channels):
+    $$n_x = 64 \times 64 \times 3 = 12,288$$
+    Thus, a single input is a vector $x \in \mathbb{R}^{12288}$.
+
+### The Design Matrix ($X$)
+To process $m$ training examples efficiently, we organize the data into a specific matrix structure. Unlike standard libraries that often use row-major formats, Deep Learning theory typically stacks examples as **columns**.
+
+Given $m$ training examples $(x^{(1)}, y^{(1)}), ..., (x^{(m)}, y^{(m)})$:
+
+$$X = \begin{bmatrix} | & | & & | \\ x^{(1)} & x^{(2)} & \dots & x^{(m)} \\ | & | & & | \end{bmatrix}$$
+
+* **Shape of $X$:** $(n_x, m)$
+    * $n_x$ (Rows) = Number of features ($12,288$)
+    * $m$ (Columns) = Number of training examples
+* **Shape of $Y$:** $(1, m)$
+    * This is a row vector containing the labels (0 or 1) for each example.
+
+### Computation Flow
+The architecture relies on a **Forward Propagation** step (calculating predictions $\hat{y}$) followed by **Backward Propagation** (calculating gradients to update weights). Grouping data into the matrix $X$ allows the network to process the entire training set simultaneously using Matrix Multiplication, avoiding slow iterative loops.
+
+---
+
+## 3. "In Plain English"
+
+### The Analogy: Unrolling a Sweater
+* **Flattening:** Imagine the input image (a 3D block of Red, Green, and Blue pixels) is a knitted sweater. "Unrolling" the image is like finding the loose thread of that sweater and pulling it until the entire complex 3D shape becomes one single, long string of yarn laid out in a straight line. The computer reads this long line (vector) rather than the 3D shape.
+* **The Matrix Stack:** Imagine you have a deck of cards, where each card is a specific "Cat" or "Not Cat" scenario. Instead of laying the cards out side-by-side on a massive table (which would take a long time to walk across), you stack them into a neat, vertical deck. This allows the computer (the dealer) to grab the entire deck at once and perform a "shuffle" (computation) on the whole pile simultaneously, rather than picking up one card at a time.
+
+---
+
+## 4. Expert Nuance
+
+### The "Batch Dimension" Trap
+The transcript defines the input matrix $X$ as having the shape $(n_x, m)$ (features $\times$ samples).
+
+**The Conflict:**
+* **Theory (This Transcript):** Inputs are $(Features, BatchSize)$. This makes the linear algebra equations cleaner (e.g., $Z = WX + b$).
+* **Practice (Modern Frameworks):** When you eventually write code in **PyTorch** (`nn.Linear`) or **TensorFlow**, the convention usually flips to $(BatchSize, Features)$ or $(N, *, H_{in})$.
+
+**Implication:** As a Data Scientist, you must be mentally agile enough to swap these dimensions—often using operations like Transpose (`.T`)—depending on whether you are deriving equations on a whiteboard (Theory) or implementing them in a GPU-optimized environment (Practice).
+
