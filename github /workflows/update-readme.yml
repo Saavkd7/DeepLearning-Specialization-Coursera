@@ -1,0 +1,78 @@
+name: Update Diary Placeholders
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Important to see git history if needed
+
+      - name: Compute dates and replace
+        id: compute_dates
+        shell: bash
+        env:
+          DIARY_START_DATE: "2025-08-18"
+          FOLDER_START_DATE: "2025-12-24"
+          REPO_START_DATE: "2025-01-01" # <--- ADD YOUR ACTUAL START DATE HERE
+
+        run: |
+          set -euo pipefail
+
+          # Current Dates
+          TODAY=$(date -u +%Y-%m-%d)
+          TODAY_PRETTY=$(date -u +"%A, %d %b %Y")
+          TODAY_DOT=$(date -u +%d.%m.%Y)
+          TODAY_SHORT=$(date -u +"%d %b %Y")
+
+          # Calculation Helper Function (to keep it clean)
+          calc_days() {
+            local start=$1
+            echo $(( ( $(date -u -d "$TODAY" +%s) - $(date -u -d "$start" +%s) ) / 86400 + 1 ))
+          }
+
+          DIARY_DAY_COUNT=$(calc_days "$DIARY_START_DATE")
+          FOLDER_DAY_COUNT=$(calc_days "$FOLDER_START_DATE")
+          REPO_DAY_COUNT=$(calc_days "$REPO_START_DATE")
+
+          # Export for the commit message
+          echo "day_count_for_commit=${DIARY_DAY_COUNT}" >> "$GITHUB_OUTPUT"
+
+          # Find and Replace
+          # We use a temp file to avoid sed issues across different OS versions
+          find . -name "*.md" -type f | while read -r file; do
+            echo "Processing $file..."
+            sed -i \
+              -e "s/{{DATE_PRETTY}}/${TODAY_PRETTY}/g" \
+              -e "s/{{DAY_SINCE_2025_08_18}}/${DIARY_DAY_COUNT}/g" \
+              -e "s/{{DAYS_SINCE_REPO_START}}/${REPO_DAY_COUNT}/g" \
+              -e "s/{{DAYS_SINCE_FOLDER_START}}/${FOLDER_DAY_COUNT}/g" \
+              -e "s/{{DATE_ISO}}/${TODAY}/g" \
+              -e "s/{{DATE_DOT}}/${TODAY_DOT}/g" \
+              -e "s/{{DATE_SHORT}}/${TODAY_SHORT}/g" \
+              "$file"
+          done
+
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git add .
+            git commit -m "chore: update diary placeholders (Day ${{ steps.compute_dates.outputs.day_count_for_commit }})"
+            git push
+          fi
