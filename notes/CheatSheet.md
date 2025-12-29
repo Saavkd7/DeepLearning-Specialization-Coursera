@@ -11,6 +11,13 @@
 | $W^{[l]}$ | Weight Matrix for layer $l$ | $(n^{[l]}, n^{[l-1]})$ | Maps prev layer to current |
 | $b^{[l]}$ | Bias Vector for layer $l$ | $(n^{[l]}, 1)$ | Broadcasted across $m$ columns |
 
+| Symbol | Meaning |
+| :--- | :--- |
+| **$[l]$** | Layer index |
+| **$(i)$** | Training example index |
+| **$i$ (subscript)** | Neuron/Unit index in a layer |
+| **$X$ (columns)** | Individual training examples |
+
 ---
 
 ## 2. Forward Propagation (Vectorized)
