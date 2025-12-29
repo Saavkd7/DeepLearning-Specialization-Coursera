@@ -1,89 +1,49 @@
-# Deep Learning Mathematics Cheat Sheet
+# Deep Learning Mathematics Glossary
 
-## 1. Global Notation & Dimensions
-| Symbol | Definition | Shape/Dimension | Note |
-| :--- | :--- | :--- | :--- |
-| $m$ | Number of training examples | Scalar | Size of dataset |
-| $n_x$ | Number of input features | Scalar | e.g., $64 \times 64 \times 3$ for images |
-| $n^{[l]}$ | Number of nodes in layer $l$ | Scalar | Architecture hyperparameter |
-| $X$ | Input Matrix | $(n_x, m)$ | **Columns** are examples |
-| $Y$ | True Label Matrix | $(1, m)$ | 1 = True, 0 = False |
-| $W^{[l]}$ | Weight Matrix for layer $l$ | $(n^{[l]}, n^{[l-1]})$ | Maps prev layer to current |
-| $b^{[l]}$ | Bias Vector for layer $l$ | $(n^{[l]}, 1)$ | Broadcasted across $m$ columns |
+## 1. The Variables (The Characters)
 
----
+* **$x$ (Input Feature Vector):** The raw data for a single example (e.g., pixel values of one image).
+    * *Shape:* $(n_x, 1)$
+* **$X$ (Input Matrix):** The entire training dataset stacked together. Each **column** is one example.
+    * *Shape:* $(n_x, m)$ where $m$ is the number of examples.
+* **$y$ / $Y$ (True Label):** The correct answer (e.g., 1 for Cat, 0 for Non-Cat).
+* **$W$ (Weights):** The parameters the model learns. It determines the importance of each input feature.
+    * *Shape:* $(n_{neurons}, n_{inputs})$
+* **$b$ (Bias):** A learnable parameter that shifts the activation function (like the intercept $c$ in $y=mx+c$).
+    * *Shape:* $(n_{neurons}, 1)$
+* **$Z$ (Linear Output):** The weighted sum of inputs plus bias.
+    * *Formula:* $Z = WX + b$
+* **$A$ (Activation):** The output of a neuron after applying the non-linear "gate." This is what gets passed to the next layer.
+    * *Formula:* $A = g(Z)$ (where $g$ is the activation function).
+* **$\hat{y}$ (Prediction):** The final output of the network (usually the activation of the last layer, e.g., $a^{[2]}$).
 
-## 2. Forward Propagation (Vectorized)
-The flow of data from input to output. $A^{[0]} = X$.
+## 2. The Scorecards (Loss vs. Cost)
 
-### General Layer $l$
-$$Z^{[l]} = W^{[l]} A^{[l-1]} + b^{[l]}$$
-$$A^{[l]} = g^{[l]}(Z^{[l]})$$
-*Where $g^{[l]}$ is the activation function for layer $l$.*
+* **$L(\hat{y}, y)$ (Loss Function):** Measures the error for a **single** training example.
+    * *Formula (Binary Cross-Entropy):*
+        $$L = -(y \log(\hat{y}) + (1-y) \log(1-\hat{y}))$$
+    * *Meaning:* "How wrong was I on *this specific image*?".
+* **$J(W, b)$ (Cost Function):** The average error across the **entire** training set ($m$ examples).
+    * *Formula:*
+        $$J = \frac{1}{m} \sum_{i=1}^{m} L(\hat{y}^{(i)}, y^{(i)})$$
+    * *Meaning:* "How wrong is the model *on average*?" We try to minimize this single number.
 
----
+## 3. The Processes (The Action)
 
-## 3. Activation Functions & Derivatives
-Used to introduce non-linearity ($g(z)$) and for backpropagation ($g'(z)$).
+* **Forward Propagation:** The flow of data from Input $\rightarrow$ Output.
+    * *Step 1 (Linear):* $Z^{[l]} = W^{[l]}A^{[l-1]} + b^{[l]}$
+    * *Step 2 (Activation):* $A^{[l]} = g(Z^{[l]})$
+    * *Goal:* Calculate the prediction $\hat{y}$ and the Cost $J$.
+* **Backpropagation:** The flow of error from Output $\rightarrow$ Input.
+    * *Goal:* Calculate the **Gradients** ($dW, db$). It uses the Chain Rule of Calculus to compute "how much did $W$ contribute to the error?".
+* **Gradient ($dW, db$):** The **Derivative** (slope) of the Cost Function with respect to a parameter.
+    * *Meaning:* It tells us the direction to move to increase the error.
+    * *Formula (Output Layer):* $dZ = A - Y$
+    * *Formula (Weights):* $dW = \frac{1}{m} X dZ^T$.
+* **Gradient Descent:** The update step that actually changes the weights.
+    * *Formula:* $W = W - \alpha \cdot dW$
+    * *Note:* We subtract because we want to go *down* the slope (minimize error). $\alpha$ is the Learning Rate.
 
-### A. Sigmoid ($\sigma$)
-* **Usage:** Output Layer (Binary Classification).
-* **Formula:** $g(z) = \frac{1}{1 + e^{-z}}$
-* **Derivative:** $g'(z) = a(1 - a)$
+## 4. Activation Functions (The Gates)
 
-### B. Tanh
-* **Usage:** Hidden Layers (Zero-centered).
-* **Formula:** $g(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$
-* **Derivative:** $g'(z) = 1 - a^2$
-
-### C. ReLU (Rectified Linear Unit)
-* **Usage:** Hidden Layers (Standard).
-* **Formula:** $g(z) = \max(0, z)$
-* **Derivative:** $$
-  g'(z) = \begin{cases} 
-  0 & \text{if } z < 0 \\
-  1 & \text{if } z > 0 
-  \end{cases}
-  $$
-
----
-
-## 4. Loss & Cost Functions
-Measuring error.
-
-### Loss Function ($L$)
-*Error for a **single** example.*
-$$L(\hat{y}, y) = -\left( y \log(\hat{y}) + (1-y) \log(1-\hat{y}) \right)$$
-
-### Cost Function ($J$)
-*Average error across **m** examples.*
-$$J(W, b) = -\frac{1}{m} \sum_{i=1}^{m} \left[ y^{(i)} \log(\hat{y}^{(i)}) + (1-y^{(i)}) \log(1-\hat{y}^{(i)}) \right]$$
-
-
----
-
-## 5. Backpropagation (Vectorized)
-Calculating gradients for Layer $l$. Computed from right (output) to left (input).
-
-### Step 1: Error at Layer $l$ ($dZ^{[l]}$)
-* **For Output Layer ($L$):**
-  $$dZ^{[L]} = A^{[L]} - Y$$
-* **For Hidden Layers ($l$):**
-  $$dZ^{[l]} = (W^{[l+1]T} dZ^{[l+1]}) * g'^{[l]}(Z^{[l]})$$
-  *(Note: $*$ denotes element-wise multiplication)*
-
-### Step 2: Gradients for Parameters ($dW, db$)
-$$dW^{[l]} = \frac{1}{m} dZ^{[l]} A^{[l-1]T}$$
-$$db^{[l]} = \frac{1}{m} \text{np.sum}(dZ^{[l]}, \text{axis}=1, \text{keepdims}=True)$$
-
-
----
-
-## 6. Optimization (Gradient Descent)
-Updating parameters to minimize Cost $J$.
-
-$$W^{[l]} = W^{[l]} - \alpha \cdot dW^{[l]}$$
-$$b^{[l]} = b^{[l]} - \alpha \cdot db^{[l]}$$
-
-* **$\alpha$ (Alpha):** Learning Rate (Hyperparameter).
-* **Direction:** Subtract because gradient points *uphill*, we want to go *downhill*.
+* **Sigmoid ($\sigma$):** Squeezes numbers
