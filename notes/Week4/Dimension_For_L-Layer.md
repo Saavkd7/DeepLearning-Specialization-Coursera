@@ -12,7 +12,7 @@ Day **9** From I started this repository
 
 
 ###  Pyhon
-```
+```python
 
 import numpy as np
 
@@ -30,4 +30,4 @@ for i in range(1, len(layer_dims)):
     parameter['W' + str(i)] = np.random.randn(layer_dims[i], layer_dims[i-1]) * 0.01
     parameter['b' + str(i)] = np.random.randn(layer_dims[i], 1) * 0.01
 print(parameter)
-```
+
