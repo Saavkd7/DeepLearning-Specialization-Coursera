@@ -1,14 +1,14 @@
 ---
 # My Diary
 
-Today  **{{DATE_PRETTY}}**.
+Today  **Thursday, 01 Jan 2026**.
 
 ## General Counter
-It has been    **{{DAY_SINCE_2025_08_18}}** days since I started this diary.
+It has been    **137** days since I started this diary.
 
 # Repository Counter
 
-Day **{{DAYS_SINCE_REPO_START}}** From I started this repository
+Day **9** From I started this repository
 
 
 ###  Pyhon
