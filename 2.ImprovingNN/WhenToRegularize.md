@@ -1,0 +1,24 @@
+There is no fixed number (like saying "starting from 10,000 parameters") because it all depends on the amount of **training data** you have.
+
+You should consider using **L2 Regularization** when any of the following conditions are met:
+
+### 1. The Parameters vs. Data Ratio ($P > m$)
+If the number of parameters ($P$) is close to or greater than the number of training examples ($m$), the network has "room to spare" to memorize each individual data point instead of learning the general pattern.
+* **Example:** If you have 1,000 rows of Milan traffic data but your network has 10,000 parameters, the risk of **overfitting** is extremely high.
+
+### 2. The Error "Gap" (High Variance)
+This is the definitive signal. You check your metrics and see this:
+* **Training Error:** 1% (Almost perfect).
+* **Validation Error:** 15% (Fails significantly with new data).
+That **14% difference** is **Variance**, and it is screaming that you need L2 to "reign in" the weights.
+
+
+
+### 3. When the Network is no longer "Linear"
+As soon as you add hidden layers (Deep Learning), the network's ability to create extremely complex curves grows exponentially. Because of this, in modern practice, a small amount of regularization is almost always used by default in deep networks, even if it is a very small $\lambda$ value (such as $0.001$).
+
+---
+
+**Practical Summary:** Don't wait until you have millions of parameters. If you notice your model is "great at home (training) but bad on the street (validation)," it is time to apply L2 regardless of the network's size.
+
+**Would you like me to help you interpret the errors from your latest training run to see if that "gap" already exists?**
