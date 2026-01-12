@@ -1,1 +1,16 @@
 always consider de implementations to understand the result and also add a always a segment where how this is related with evertyhing we've seen earlier. 
+nexting the prompt 
+
+Understood. I have locked in this structure for all future responses. Here is the template I will use for every new concept you provide:
+
+Markdown Conceptual Guide:
+
+Definitions, Formulas, and Technical Notes.
+
+Relation to Earlier Concepts: A dedicated subsection explaining how this new piece fits with previous topics (like edge detection, standard neural networks, etc.).
+
+Basic Chunk Implementation: A small, copy-pasteable Python snippet focusing only on the core logic (using numpy).
+
+Full Visualization Implementation:
+
+A separate, self-contained code block using matplotlib to visualize the input, operation, and output.
